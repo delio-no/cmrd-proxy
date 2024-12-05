@@ -1,7 +1,6 @@
 from twisted.internet import reactor, protocol
 from twisted.protocols.policies import TimeoutMixin
 from twisted.web import proxy, http
-from twisted.internet import ssl
 
 # Пример данных для аутентификации
 AUTH_USERS = {
