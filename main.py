@@ -1,3 +1,4 @@
+import base64
 import logging
 from twisted.internet import reactor, protocol
 from twisted.protocols.policies import TimeoutMixin
@@ -38,7 +39,8 @@ class AuthenticatedProxyRequest(proxy.ProxyRequest):
 
         # Декодирование данных аутентификации
         try:
-            username, password = auth_data.decode('base64').split(':')
+            decoded_data = base64.b64decode(auth_data).decode('utf-8')
+            username, password = decoded_data.split(':')
         except Exception as e:
             logger.error(f"Error decoding authentication data: {e}")
             self.setResponseCode(http.UNAUTHORIZED)
@@ -57,7 +59,10 @@ class AuthenticatedProxyRequest(proxy.ProxyRequest):
         logger.info(f"Authentication successful for user: {username}")
 
         # Если аутентификация прошла успешно, продолжаем обработку запроса
-        proxy.ProxyRequest.process(self)
+        try:
+            proxy.ProxyRequest.process(self)
+        except Exception as e:
+            logger.warning(e)
 
 class AuthenticatedProxy(proxy.Proxy):
     requestFactory = AuthenticatedProxyRequest
@@ -67,5 +72,5 @@ class AuthenticatedProxyFactory(http.HTTPFactory):
 
 if __name__ == "__main__":
     logger.info("Starting proxy server on port 10000")
-    reactor.listenTCP(10000, AuthenticatedProxyFactory(), interface="0.0.0.0")
+    reactor.listenTCP(10000, AuthenticatedProxyFactory())
     reactor.run()
