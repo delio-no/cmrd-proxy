@@ -66,6 +66,6 @@ class AuthenticatedProxyFactory(http.HTTPFactory):
     protocol = AuthenticatedProxy
 
 if __name__ == "__main__":
-    logger.info("Starting proxy server on port 8080")
-    reactor.listenTCP(10000, AuthenticatedProxyFactory())
+    logger.info("Starting proxy server on port 10000")
+    reactor.listenTCP(10000, AuthenticatedProxyFactory(), interface="0.0.0.0")
     reactor.run()
